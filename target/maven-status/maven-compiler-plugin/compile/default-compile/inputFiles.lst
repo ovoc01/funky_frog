@@ -1,0 +1,13 @@
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/core/annotation/Mapping.java
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/core/connection/DtbConnexion.java
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/core/mapping/DtbObjectAccess.java
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/core/annotation/ForeignKey.java
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/core/annotation/PrimaryKey.java
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/App.java
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/core/build/QueryBuilder.java
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/core/mapping/DtbObject.java
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/core/tools/Utils.java
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/core/connection/reader/XmlReader.java
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/core/annotation/Column.java
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/core/mapping/FkObject.java
+/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java/com/ovoc01/app/core/annotation/View.java

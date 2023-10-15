@@ -1,0 +1,20 @@
+-encoding
+'UTF-8'
+-protected
+-sourcepath
+'/Users/rakotoharisoa/utils/generic-orm/generic-dao/src/main/java:/Users/rakotoharisoa/utils/generic-orm/generic-dao/target/generated-sources/annotations'
+-author
+-bottom
+'Copyright &#169; 2023. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/Users/rakotoharisoa/utils/generic-orm/generic-dao/target/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'generic-dao 1.0 API'
+-use
+-version
+-windowtitle
+'generic-dao 1.0 API'

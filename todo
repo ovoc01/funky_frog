@@ -1,0 +1,4 @@
+-create annotation @InitializeDuringCreation
+-lasa misy anarana specific ny ForeignKey tsirairay
+-fonction afahana mi initialiser ForeignKey ray am alalany anarany
+-fonction afaha mi initialiser ForeignKey rehetra

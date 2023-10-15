@@ -1,0 +1,10 @@
+<database>
+    <connection>
+        <server>postgres</server>
+        <host>localhost</host>
+        <port>5432</port>
+        <user>rakotoharisoa</user>
+        <password>pixel</password>
+        <dbname>web_service_tp</dbname>
+    </connection>
+</database>

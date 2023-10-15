@@ -1,0 +1,7 @@
+com.ovoc01.app
+com.ovoc01.app.core.annotation
+com.ovoc01.app.core.build
+com.ovoc01.app.core.connection
+com.ovoc01.app.core.connection.reader
+com.ovoc01.app.core.mapping
+com.ovoc01.app.core.tools
