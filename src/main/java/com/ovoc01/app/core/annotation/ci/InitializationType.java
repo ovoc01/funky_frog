@@ -1,5 +1,5 @@
 package com.ovoc01.app.core.annotation.ci;
 
 public enum InitializationType {
-    All,AnnotedWithInit
+    ALL,ANNOTED_FIELD_ONLY
 }

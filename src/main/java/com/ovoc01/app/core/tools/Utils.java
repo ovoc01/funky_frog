@@ -301,7 +301,7 @@ public class Utils {
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         ForeignKey foreign = field.getAnnotation(ForeignKey.class);
         if (foreign != null) {
-            FkObject fkObject = new FkObject(colString, value, field.getType());
+            FkObject fkObject = new FkObject(colString, value, field.getType(),foreign.initialization());
             returnValue.getFkHashMap().put(foreign.identity(), fkObject);
         } else {
             Class<?> valClass = (value != null) ? value.getClass() : field.getType();
