@@ -11,11 +11,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
 import com.ovoc01.app.core.annotation.*;
+import com.ovoc01.app.core.annotation.ci.InitializationType;
 import com.ovoc01.app.core.build.QueryBuilder;
 import com.ovoc01.app.core.connection.DtbConnexion;
 import com.ovoc01.app.core.tools.Utils;
@@ -49,6 +49,7 @@ class DtbObject implements Serializable {
     private transient HashMap<String, FkObject> fkHashMap;
     private transient QueryBuilder qBuilder = new QueryBuilder();
     private transient String customPredicate = null;
+    private transient ProvideFkOnCreation provideFkOnCreation;
 
     /**
      * Constructs a new instance of DtbObject. It initializes various properties,
@@ -67,10 +68,9 @@ class DtbObject implements Serializable {
         Field[] vFields = Utils.viewAttrFields(this);
         if (vFields != null)
             setViewAttribute(vFields);
-       fkHashMap = new HashMap<>();
+        fkHashMap = new HashMap<>();
+        provideFkOnCreation = this.getClass().getAnnotation(ProvideFkOnCreation.class);
     }
-
-    
 
     /**
      * Sets the array of view attribute fields.
@@ -84,7 +84,6 @@ class DtbObject implements Serializable {
         this.viewAttribute = fields;
     }
 
-   
     /**
      * Sets the history table name.
      *
@@ -110,8 +109,6 @@ class DtbObject implements Serializable {
 
     }
 
-    
-
     /**
      * Sets the column string for selection.
      *
@@ -123,8 +120,6 @@ class DtbObject implements Serializable {
             throw new IllegalArgumentException("ColString is null");
         this.colString = colString;
     }
-
-    
 
     /**
      * Sets the table name.
@@ -149,10 +144,6 @@ class DtbObject implements Serializable {
             throw new IllegalArgumentException("Database name cannot be null or empty");
         this.database = database;
     }
-
-    
-
-   
 
     /**
      * Selects and retrieves database objects based on the provided connection.
@@ -197,7 +188,8 @@ class DtbObject implements Serializable {
         LinkedList<T> objectLists = new LinkedList<>();
         while (resultSet.next()) {
             DtbObjectAccess objrT = (DtbObjectAccess) Utils.createObject(resultSet, this);
-            //objrT.setForeignKey(c); //TODO : not obligatoire
+            objrT.initNecessaryForeignKey(c);
+            // objrT.setForeignKey(c); //TODO : not obligatoire
             // objrT.initViewField(c);
             objectLists.add((T) objrT);
         }
@@ -236,7 +228,6 @@ class DtbObject implements Serializable {
      */
     private void save(Connection c) throws Exception {
         Statement s = c.createStatement();
-
         String query = (customPredicate == null) ? new QueryBuilder().insert(this) : customPredicate;
         System.out.println(query);
         s.execute(query);
@@ -451,14 +442,44 @@ class DtbObject implements Serializable {
         // field.set(this, val);
     }
 
+    void initNecessaryForeignKey(Connection c) throws Exception {
+        if (provideFkOnCreation != null) {
+            if (provideFkOnCreation.type() == InitializationType.ALL)
+                initAllForeignKey(c);
+            else
+                initAnnotedForeignKeyOnly(c);
+        }
+        // TODO
+    }
+
+    void initAnnotedForeignKeyOnly(Connection c) throws Exception {
+        for (Map.Entry<String, FkObject> mapEntry : getFkHashMap().entrySet()) {
+            FkObject fkObject = mapEntry.getValue();
+            if (fkObject.isInit()) {
+                Object object = fkObject.init(c);
+                getClass().getDeclaredMethod(Utils.createSetter(fkObject.getFkName()), object.getClass()).invoke(this,
+                        object);
+            }
+        }
+    }
+
+    public void initForeignKeyByIdentity(String identity, Connection c) throws Exception {
+        FkObject fObject = getFkHashMap().get(identity);
+        if (fObject == null)
+            throw new Exception("the identity of your foreign key does not exist");
+        Object object = fObject.init(c);
+        getClass().getDeclaredMethod(Utils.createSetter(fObject.getFkName()), object.getClass()).invoke(this,
+                object);
+    }
+
     /**
      * Init all foreign key objects based on the provided connection.
      *
      * @param c The database connection.
      * @throws Exception If an error occurs during foreign key initialization.
      */
-    void initAllForeignKey(Connection c) throws Exception{
-        for(Map.Entry<String,FkObject> mapEntry : getFkHashMap().entrySet()){
+    void initAllForeignKey(Connection c) throws Exception {
+        for (Map.Entry<String, FkObject> mapEntry : getFkHashMap().entrySet()) {
             FkObject fkObject = mapEntry.getValue();
             Object object = fkObject.init(c);
             getClass().getDeclaredMethod(Utils.createSetter(fkObject.getFkName()), object.getClass()).invoke(this,

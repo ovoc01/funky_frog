@@ -1,9 +1,14 @@
 package com.ovoc01.app.core.mapping;
 
 import java.sql.Connection;
+
+
 import com.ovoc01.app.core.tools.Utils;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -13,7 +18,9 @@ public class FkObject {
     private String fkName;
     private Object fkValue;
     private Class<?> viewClass;
-
+    @Getter
+    @Setter
+    private boolean init=false;
     /**
      * Default constructor for FkObject.
      */
@@ -27,11 +34,14 @@ public class FkObject {
      * @param value   The value of the foreign key.
      * @param fkClass The related class associated with the foreign key.
      */
-    public FkObject(String name, Object value, Class<?> fkClass) {
+    public FkObject(String name, Object value, Class<?> fkClass,boolean init) {
         setFkName(name);
         setFkValue(value);
         setViewClass(fkClass);
+        this.init = init;
     }
+
+    
 
     /**
      * Initializes the FkObject by performing a database select operation based on the foreign key value.

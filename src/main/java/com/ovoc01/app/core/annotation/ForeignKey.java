@@ -14,4 +14,5 @@ import java.lang.annotation.Target;
 @SuppressWarnings("unused")
 public @interface ForeignKey {
     String identity();
+    boolean initialization() default false;
 }
