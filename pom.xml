@@ -44,7 +44,7 @@
           <mainClass>com.ovoc01.app.App</mainClass>
         </configuration>
       </plugin>
-      <plugin>
+      <!-- <plugin>
        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.3.0</version> 
@@ -59,9 +59,8 @@
         </executions>
         <configuration>
           <additionalparam>-Xdoclint:none</additionalparam>
-          
         </configuration>
-      </plugin> 
+      </plugin>  -->
       <plugin>
         <groupId>org.sonatype.central</groupId>
         <artifactId>central-publishing-maven-plugin</artifactId>

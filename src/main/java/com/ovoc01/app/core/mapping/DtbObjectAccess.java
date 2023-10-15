@@ -23,4 +23,10 @@ public class DtbObjectAccess extends DtbObject {
         pk.set(this, pk.getAnnotation(PrimaryKey.class).prefix()
                 + Utils.constructBasicStringSequence(this, connection, length));
     }
+
+    public void buildSequence(Connection c) throws Exception{
+        Field pk = getPrimaryKey();
+        pk.setAccessible(true);
+        pk.set(this,Utils.currentSeqVal(pk.getAnnotation(PrimaryKey.class).sequence(), pk, c));
+    }
 }
