@@ -62,7 +62,7 @@ public class XmlReader {
         if (nodeList != null && nodeList.getLength() > 0) {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element el = (Element) nodeList.item(i);
-                if (XmlReader.getElementValue(el, "dbname").equals(dbname)) {
+                if (XmlReader.getElementValue(el, "connection_id").equals(dbname)) {
                     return el;
                 }
             }

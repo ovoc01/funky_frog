@@ -29,4 +29,11 @@ public class DtbObjectAccess extends DtbObject {
         pk.setAccessible(true);
         pk.set(this,Utils.currentSeqVal(pk.getAnnotation(PrimaryKey.class).sequence(), pk, c));
     }
+
+    public void generateUUID() throws IllegalArgumentException, IllegalAccessException{
+         Field pk = getPrimaryKey();
+        pk.setAccessible(true);
+        pk.set(this,Utils.genereateMostSignificantBitsFor_UUID());
+    }
+    
 }

@@ -189,7 +189,7 @@ class DtbObject implements Serializable {
         while (resultSet.next()) {
             DtbObjectAccess objrT = (DtbObjectAccess) Utils.createObject(resultSet, this);
             objrT.initNecessaryForeignKey(c);
-            // objrT.setForeignKey(c); //TODO : not obligatoire
+            // objrT.setForeignKey(c); 
             // objrT.initViewField(c);
             objectLists.add((T) objrT);
         }

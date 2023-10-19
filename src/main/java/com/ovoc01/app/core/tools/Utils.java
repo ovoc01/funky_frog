@@ -11,22 +11,27 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.UUID;;
 
-    /**
-     * This class provides utility methods for the application.
-     */
+/**
+ * This class provides utility methods for the application.
+ */
 public class Utils {
 
     /**
-     * function how get the table name 
+     * function how get the table name
+     * 
      * @params Object the object
      * @return String the table name
      */
-    public static String getTableName(Object object) throws RuntimeException{
+    public static String getTableName(Object object) throws RuntimeException {
         Mapping mapping = object.getClass().getAnnotation(Mapping.class);
-        if(mapping ==null) throw new RuntimeException("Mapping annotation not found");
-        if(mapping.table().isEmpty()) return object.getClass().getSimpleName().toLowerCase();
+        if (mapping == null)
+            throw new RuntimeException("Mapping annotation not found");
+        if (mapping.table().isEmpty())
+            return object.getClass().getSimpleName().toLowerCase();
         return mapping.table().toLowerCase();
     }
 
@@ -36,35 +41,41 @@ public class Utils {
      * @param fields the fields to get the column names for
      * @return the comma-separated column names
      */
-    public static String fieldsColumnsName(Field[] fields){
+    public static String fieldsColumnsName(Field[] fields) {
         StringBuilder stringBuilder = new StringBuilder();
         int fieldLength = fields.length;
         for (int i = 0; i < fieldLength; i++) {
             stringBuilder.append(getColumnName(fields[i]));
-            if(i<fieldLength-1) stringBuilder.append(",");
+            if (i < fieldLength - 1)
+                stringBuilder.append(",");
         }
         return stringBuilder.toString();
     }
 
     /**
-     * function how get the database name 
+     * function how get the database name
+     * 
      * @params Object the object
      * @return String the database name
      */
-    public static String getDatabaseName(Object object) throws RuntimeException{
+    public static String getDatabaseName(Object object) throws RuntimeException {
         Mapping mapping = object.getClass().getAnnotation(Mapping.class);
-        if(mapping ==null) throw new RuntimeException("Mapping annotation not found");
-        if(mapping.database().isEmpty()) throw new RuntimeException("Database name cannot be empty");
+        if (mapping == null)
+            throw new RuntimeException("Mapping annotation not found");
+        if (mapping.database().isEmpty())
+            throw new RuntimeException("Database name cannot be empty");
         return mapping.database().toLowerCase();
     }
-    
+
     /**
      * function who retrieve the primary key object of a class if it exist
+     * 
      * @params Object the object
-     * @return Field the primary key 
+     * @return Field the primary key
      */
-    public static Field primaryKey (Object object){
-       return Arrays.stream(object.getClass().getDeclaredFields()).filter(field -> field.isAnnotationPresent(PrimaryKey.class)).findFirst().orElse(null);  
+    public static Field primaryKey(Object object) {
+        return Arrays.stream(object.getClass().getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(PrimaryKey.class)).findFirst().orElse(null);
     }
 
     /**
@@ -73,8 +84,9 @@ public class Utils {
      * @param object the object to get the fields for
      * @return the fields annotated with @Column
      */
-    public static Field[] fieldToInsert(Object object){
-        return Arrays.stream(object.getClass().getDeclaredFields()).filter(field -> field.isAnnotationPresent(Column.class)).toArray(Field[]::new);
+    public static Field[] fieldToInsert(Object object) {
+        return Arrays.stream(object.getClass().getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(Column.class)).toArray(Field[]::new);
     }
 
     /**
@@ -84,9 +96,10 @@ public class Utils {
      * @return the PrimaryKey annotation for the field
      * @throws RuntimeException if the field is not a primary key
      */
-    public static PrimaryKey  isPrimaryKey(Field field) throws RuntimeException{
+    public static PrimaryKey isPrimaryKey(Field field) throws RuntimeException {
         PrimaryKey primaryKey = field.getAnnotation(PrimaryKey.class);
-        if(primaryKey==null) throw new RuntimeException("The field "+field.getName()+" is not a primary key");
+        if (primaryKey == null)
+            throw new RuntimeException("The field " + field.getName() + " is not a primary key");
         return primaryKey;
     }
 
@@ -95,7 +108,7 @@ public class Utils {
      *
      * @return the current working directory
      */
-    public static String currentLocation(){
+    public static String currentLocation() {
         return System.getProperty("user.dir");
     }
 
@@ -103,13 +116,15 @@ public class Utils {
      * Returns the current value of the specified sequence.
      *
      * @param sequence the name of the sequence
-     * @param field the primary key field of the table associated with the sequence
-     * @param c the database connection
+     * @param field    the primary key field of the table associated with the
+     *                 sequence
+     * @param c        the database connection
      * @return the current value of the sequence
      * @throws RuntimeException if the connection is null
-     * @throws SQLException if an error occurs while executing the query
+     * @throws SQLException     if an error occurs while executing the query
      */
-    public static Integer currentSeqVal(String sequence, Field field, Connection c) throws RuntimeException, SQLException {
+    public static Integer currentSeqVal(String sequence, Field field, Connection c)
+            throws RuntimeException, SQLException {
         if (c == null) {
             throw new RuntimeException("Connection cannot be null, please create a connection");
         }
@@ -126,8 +141,8 @@ public class Utils {
     /**
      * Returns a string with leading zeros to match the given length.
      *
-     * @param nbr the number to pad with zeros
-     * @param pk the prefix to add before the number
+     * @param nbr  the number to pad with zeros
+     * @param pk   the prefix to add before the number
      * @param nbrL the total length of the resulting string
      * @return the padded string
      */
@@ -141,11 +156,12 @@ public class Utils {
     }
 
     /**
-     * Constructs a string sequence for the given object using the primary key field and sequence name.
+     * Constructs a string sequence for the given object using the primary key field
+     * and sequence name.
      *
      * @param object the object to construct the sequence for
-     * @param c the database connection
-     * @param nbrL the total length of the resulting string
+     * @param c      the database connection
+     * @param nbrL   the total length of the resulting string
      * @return the constructed string sequence
      * @throws Exception if an error occurs while constructing the sequence
      */
@@ -157,32 +173,34 @@ public class Utils {
             return completeZero(seq, pKey.prefix(), nbrL);
         return null;
     }
-    
+
     /**
      * Builds a string primary key using the given separator and arguments.
      *
      * @param separator the separator to use between arguments
-     * @param args the arguments to use in the primary key
+     * @param args      the arguments to use in the primary key
      * @return the constructed string primary key
      */
-    public static String buildStringPk(String separator,String ...args){
+    public static String buildStringPk(String separator, String... args) {
         StringBuilder pk = new StringBuilder();
         int length = args.length;
         for (int i = 0; i < length; i++) {
             pk.append(args[i]);
-            if(i!=length-1) pk.append(separator);
+            if (i != length - 1)
+                pk.append(separator);
         }
         return pk.toString();
     }
 
     /**
-     * Returns the fields annotated with @Column that are not null for the given object.
+     * Returns the fields annotated with @Column that are not null for the given
+     * object.
      *
      * @param object the object to get the fields for
      * @param fields the fields to check for null values
      * @return the fields annotated with @Column that are not null
      */
-    public static Field[] notNullFieldsToInsert(Object object,Field[] fields){
+    public static Field[] notNullFieldsToInsert(Object object, Field[] fields) {
         return Arrays.stream(fields)
                 .filter(field -> {
                     field.setAccessible(true);
@@ -202,8 +220,8 @@ public class Utils {
      * @param field the field name to construct the getter for
      * @return the constructed getter method name
      */
-    public static String createGetter(String field){
-        return "get"+field.substring(0,1).toUpperCase()+field.substring(1);
+    public static String createGetter(String field) {
+        return "get" + field.substring(0, 1).toUpperCase() + field.substring(1);
     }
 
     /**
@@ -212,9 +230,9 @@ public class Utils {
      *
      * @param field The name of the field.
      * @return The setter method name.
-     */    
-    public static String createSetter(String field){
-        return "set"+field.substring(0,1).toUpperCase()+field.substring(1);
+     */
+    public static String createSetter(String field) {
+        return "set" + field.substring(0, 1).toUpperCase() + field.substring(1);
     }
 
     /**
@@ -224,9 +242,10 @@ public class Utils {
      * @param field The field for which to retrieve the column name.
      * @return The column name.
      */
-     public static String getColumnName(Field field){
+    public static String getColumnName(Field field) {
         Column column = field.getAnnotation(Column.class);
-        if(column.name().equals("")) return field.getName();
+        if (column.name().equals(""))
+            return field.getName();
         return column.name();
     }
 
@@ -237,20 +256,18 @@ public class Utils {
      * @param object The database object for which to generate the column list.
      * @return A string containing the comma-separated column names.
      */
-    public static String columnToSelect(Object object){
-        DtbObjectAccess dtbObjectAccess = (DtbObjectAccess)object;
+    public static String columnToSelect(Object object) {
+        DtbObjectAccess dtbObjectAccess = (DtbObjectAccess) object;
         StringBuilder q = new StringBuilder();
-        Field[] fields =  dtbObjectAccess.getFieldToInsert();
-        int length =fields.length;
-       for (int i = 0; i < length; i++) {
+        Field[] fields = dtbObjectAccess.getFieldToInsert();
+        int length = fields.length;
+        for (int i = 0; i < length; i++) {
             q.append(Utils.getColumnName(fields[i]));
-            if(i<length-1)q.append(",");
-       }
+            if (i < length - 1)
+                q.append(",");
+        }
         return q.toString();
     }
-
-
-
 
     /**
      * Creates and populates an object based on the data from a ResultSet.
@@ -301,7 +318,7 @@ public class Utils {
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         ForeignKey foreign = field.getAnnotation(ForeignKey.class);
         if (foreign != null) {
-            FkObject fkObject = new FkObject(colString, value, field.getType(),foreign.initialization());
+            FkObject fkObject = new FkObject(colString, value, field.getType(), foreign.initialization());
             returnValue.getFkHashMap().put(foreign.identity(), fkObject);
         } else {
             Class<?> valClass = (value != null) ? value.getClass() : field.getType();
@@ -362,4 +379,31 @@ public class Utils {
                 .toArray(Field[]::new);
     }
 
+    public static String uniqueUUID() {
+        return String.valueOf(UUID.randomUUID());
+    }
+
+    private static long get64LeastSignificantBitsForVersion1() {
+        Random random = new Random();
+        long random63BitLong = random.nextLong() & 0x3FFFFFFFFFFFFFFFL;
+        long variant3BitFlag = 0x8000000000000000L;
+        return random63BitLong | variant3BitFlag;
+    }
+
+    private static long get64MostSignificantBitsForVersion1() {
+        final long currentTimeMillis = System.currentTimeMillis();
+        final long time_low = (currentTimeMillis & 0x0000_0000_FFFF_FFFFL) << 32;
+        final long time_mid = ((currentTimeMillis >> 32) & 0xFFFF) << 16;
+        final long version = 1 << 12;
+        final long time_hi = ((currentTimeMillis >> 48) & 0x0FFF);
+        return time_low | time_mid | version | time_hi;
+    }
+
+    public static String generateLeastSignificantBitsFor_UUID(){
+        return String.valueOf(get64LeastSignificantBitsForVersion1());
+    }
+
+    public static String genereateMostSignificantBitsFor_UUID(){
+        return String.valueOf(get64MostSignificantBitsForVersion1());
+    }
 }
