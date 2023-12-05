@@ -162,6 +162,11 @@ public class FunkyFrogKonstruktor {
         return query.toString();
     }
 
+    public <T extends FunkyFrogPersist> String selectWithJointures(T object){
+        
+        return null;
+    }
+
     /**
      * Constructs an SQL UPDATE query based on the provided object.
      *
