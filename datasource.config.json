@@ -1,0 +1,13 @@
+{
+    "workspace":"",
+    "connections":[
+        {
+            "connection_id":"postgresql",
+            "type":"postgres",
+            "jdbc_driver":"org.postgresql.Driver",
+            "datasource_url":"jdbc:postgresql://localhost:5432/module_achat",
+            "user":"",
+            "pwd":""
+        }
+    ]
+}

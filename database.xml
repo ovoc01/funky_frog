@@ -2,11 +2,11 @@
     <connection>
         <connection_id>connection1</connection_id>
         <server>postgres</server>
-        <host>10.211.55.9</host>
+        <host>localhost</host>
         <port>5432</port>
-        <user>parallels</user>
+        <user>rakotoharisoa</user>
         <pwd>pixel</pwd>
-        <dbname>postgres</dbname>
+        <dbname>module_achat</dbname>
     </connection>
     <connection>
         <connection_id>connection2</connection_id>
