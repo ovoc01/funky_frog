@@ -18,6 +18,7 @@ import com.ovoc01.funkyfrog.core.annotation.CustomQuery;
 import com.ovoc01.funkyfrog.core.annotation.ForeignKey;
 import com.ovoc01.funkyfrog.core.annotation.Mapping;
 import com.ovoc01.funkyfrog.core.annotation.PrimaryKey;
+import com.ovoc01.funkyfrog.core.annotation.ci.FetchType;
 import com.ovoc01.funkyfrog.core.build.FunkyFrogKonstruktor;
 import com.ovoc01.funkyfrog.core.mapping.FunkyFrogPersist;
 import com.ovoc01.funkyfrog.core.mapping.FkObject;;
@@ -399,7 +400,7 @@ public class BackPack {
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         ForeignKey foreign = field.getAnnotation(ForeignKey.class);
         if (foreign != null) {
-            FkObject fkObject = new FkObject(field.getName(), value, field.getType(), foreign.initialization());
+            FkObject fkObject = new FkObject(field.getName(), value, field.getType(),foreign.fetch()==FetchType.REQUIRE);
             returnValue.getFkHashMap().put(foreign.identity(), fkObject);
         } else {
             Class<?> valClass = (value != null) ? value.getClass() : field.getType();
