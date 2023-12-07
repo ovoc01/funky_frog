@@ -25,7 +25,7 @@ public class FunkyFrogKonstruktor {
      * @return An array of fields with non-null values.
      */
     public Field[] getNotNullFields(FunkyFrogPersist dtbObjectAccess) {
-        return BackPack.notNullFieldsToInsert(dtbObjectAccess, dtbObjectAccess.getFieldToInsert());
+        return BackPack.notNullFieldsToInsert(dtbObjectAccess, dtbObjectAccess.getInitializationProperty().getFieldToInsert());
     }
 
     public FunkyFrogKonstruktor() {
@@ -64,7 +64,7 @@ public class FunkyFrogKonstruktor {
 
         Field[] fields = getNotNullFields(dtbObjectAccess);
         StringBuilder query = new StringBuilder();
-        query.append(String.format("insert into %s(%s) values(", dtbObjectAccess.getTable(),BackPack.fieldsColumnsName(fields)));
+        query.append(String.format("insert into %s(%s) values(", dtbObjectAccess.getInitializationProperty().getTable(),BackPack.fieldsColumnsName(fields)));
         int fieldsLength = fields.length;
         System.out.println(fieldsLength);
         for (int i = 0; i < fieldsLength; i++) {
@@ -73,8 +73,8 @@ public class FunkyFrogKonstruktor {
             if (fk != null) {
                 fields[i].setAccessible(true);
                 FunkyFrogPersist foreignKey = (FunkyFrogPersist) fields[i].get(dtbObjectAccess);
-                query.append(helper(foreignKey, foreignKey.getPrimaryKey(),
-                        foreignKey.getPrimaryKey().getAnnotation(Column.class)));
+                query.append(helper(foreignKey, foreignKey.getInitializationProperty().getPrimaryKey(),
+                        foreignKey.getInitializationProperty().getPrimaryKey().getAnnotation(Column.class)));
             } else {
                 query.append(helper(dtbObjectAccess, fields[i], column));
             }
@@ -138,9 +138,9 @@ public class FunkyFrogKonstruktor {
             InvocationTargetException, NoSuchMethodException, SecurityException {
         Field[] fields = getNotNullFields(dtbObjectAccess);
         StringBuilder query = new StringBuilder();
-        String table = dtbObjectAccess.getSelectTable().equals("") ? dtbObjectAccess.getTable()
-                : dtbObjectAccess.getSelectTable();
-        query.append(String.format("select %s from %s ", dtbObjectAccess.getColString(), table));
+        String table = dtbObjectAccess.getInitializationProperty().getSelectTable().equals("") ? dtbObjectAccess.getInitializationProperty().getTable()
+                : dtbObjectAccess.getInitializationProperty().getSelectTable();
+        query.append(String.format("select %s from %s ", dtbObjectAccess.getInitializationProperty().getColString(), table));
         if (fields.length < 1)
             return query.toString();
         else {
@@ -203,11 +203,11 @@ public class FunkyFrogKonstruktor {
         Field[] columnToUpdate = getNotNullFields(dtbObjectAccess);
         StringBuilder stBuilder = new StringBuilder();
         StringBuilder predicate = new StringBuilder();
-        Field primaryKey = dtbObjectAccess.getPrimaryKey();
+        Field primaryKey = dtbObjectAccess.getInitializationProperty().getPrimaryKey();
         boolean pkPresence = (primaryKey != null);
 
         int fieldsLength = columnToUpdate.length;
-        stBuilder.append(String.format("update %s set ", dtbObjectAccess.getTable()));
+        stBuilder.append(String.format("update %s set ", dtbObjectAccess.getInitializationProperty().getTable()));
         predicate.append(" where ");
         if (fieldsLength < 1)
             throw new IllegalArgumentException(
@@ -267,8 +267,8 @@ public class FunkyFrogKonstruktor {
     public String delete(FunkyFrogPersist dtbObjectAccess)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(String.format("delete from %s where ", dtbObjectAccess.getTable()));
-        Field primaryKey = dtbObjectAccess.getPrimaryKey();
+        stringBuilder.append(String.format("delete from %s where ", dtbObjectAccess.getInitializationProperty().getTable()));
+        Field primaryKey = dtbObjectAccess.getInitializationProperty().getPrimaryKey();
         if (primaryKey == null)
             throw new IllegalArgumentException("To delete an object , it should have an primary key");
 

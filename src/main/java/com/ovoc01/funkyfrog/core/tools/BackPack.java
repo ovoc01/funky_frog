@@ -401,7 +401,7 @@ public class BackPack {
         ForeignKey foreign = field.getAnnotation(ForeignKey.class);
         if (foreign != null) {
             FkObject fkObject = new FkObject(field.getName(), value, field.getType(),foreign.fetch()==FetchType.REQUIRE);
-            returnValue.getFkHashMap().put(foreign.identity(), fkObject);
+            returnValue.getInitializationProperty().getFkHashMap().put(foreign.identity(), fkObject);
         } else {
             Class<?> valClass = (value != null) ? value.getClass() : field.getType();
             Method setter = dtbObjectAccess.getClass().getMethod(BackPack.createSetter(field.getName()), valClass);

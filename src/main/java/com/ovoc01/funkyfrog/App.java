@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 
 import com.ovoc01.funkyfrog.core.connection.FunkyFrogConnexion;
 import com.ovoc01.funkyfrog.core.mapping.spec.TypedQuery;
+import com.ovoc01.funkyfrog.temp.Brand;
 import com.ovoc01.funkyfrog.temp.Employe;
 
 public class App {
@@ -20,11 +21,10 @@ public class App {
          */
 
         Connection c = FunkyFrogConnexion.sessionConnection("connection1");
-        System.out.println(c);
-
-        TypedQuery<Timestamp> query = new TypedQuery<>(Timestamp.class);
-        Timestamp[] idEmploye = query.createNativeQuery("select dateCreation from besoins").fetchResults(c);
-        System.out.println(idEmploye);
+        Brand brand = new Brand();
+        Brand brand2 = new Brand();
+        System.out.println(brand.getInitializationProperty());
+        System.out.println(brand2.getInitializationProperty());
 
         // BesoinTransactionLog besoinTransactionLog = new BesoinTransactionLog();
 

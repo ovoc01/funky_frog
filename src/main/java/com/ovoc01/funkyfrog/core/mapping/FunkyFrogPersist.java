@@ -22,7 +22,7 @@ public class FunkyFrogPersist extends FunkyFrogDAO {
 
    
     public void buildPk(Connection connection, int length) throws Exception {
-        Field pk = getPrimaryKey();
+        Field pk = initializationProperty.getPrimaryKey();
         pk.setAccessible(true);
         pk.set(this, pk.getAnnotation(PrimaryKey.class).prefix()
                 + BackPack.constructBasicStringSequence(this, connection, length));
@@ -30,13 +30,13 @@ public class FunkyFrogPersist extends FunkyFrogDAO {
 
 
     public void buildSequence(Connection c) throws Exception{
-        Field pk = getPrimaryKey();
+        Field pk = initializationProperty.getPrimaryKey();
         pk.setAccessible(true);
         pk.set(this,BackPack.currentSeqVal(pk.getAnnotation(PrimaryKey.class).sequence(), pk, c));
     }
 
     public void generateUUID() throws IllegalArgumentException, IllegalAccessException{
-         Field pk = getPrimaryKey();
+         Field pk = initializationProperty.getPrimaryKey();
         pk.setAccessible(true);
         pk.set(this,BackPack.genereateMostSignificantBitsFor_UUID());
     }

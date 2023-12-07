@@ -28,6 +28,9 @@ public class TypedQuery<U> {
     }
 
     public TypedQuery<U> setParamater(String key, Object value) {
+        if(value instanceof String) {
+            value = "'" + value + "'";
+        }
         this.query = query.replaceAll(":" + key, String.valueOf(value));
         return this;
     }
@@ -47,6 +50,7 @@ public class TypedQuery<U> {
         PreparedStatement ps = c.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         List<U> results = new ArrayList<>();
+        System.out.println(query);
         while (rs.next()) {
             // Assuming U is a type that can be returned from the ResultSet
             results.add((U) rs.getObject(1));

@@ -52,7 +52,7 @@ public class FkObject {
      */
     public <T> T init(Connection c) throws Exception {
         FunkyFrogPersist dtbObjectAccess = (FunkyFrogPersist) getViewClass().newInstance();
-        Field primaryKey = dtbObjectAccess.getPrimaryKey();
+        Field primaryKey = dtbObjectAccess.getInitializationProperty().getPrimaryKey();
         if (primaryKey == null) {
             throw new IllegalArgumentException("Your object's primary key is null");
         }

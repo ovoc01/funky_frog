@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ovoc01.funkyfrog.core.annotation.CustomQuery;
 import com.ovoc01.funkyfrog.core.annotation.Mapping;
 import com.ovoc01.funkyfrog.core.annotation.PrimaryKey;
@@ -21,6 +22,7 @@ import com.ovoc01.funkyfrog.core.annotation.ProvideFkOnCreation;
 import com.ovoc01.funkyfrog.core.annotation.ci.InitializationType;
 import com.ovoc01.funkyfrog.core.build.FunkyFrogKonstruktor;
 import com.ovoc01.funkyfrog.core.connection.FunkyFrogConnexion;
+import com.ovoc01.funkyfrog.core.mapping.props.FunkyFrogPersistProps;
 import com.ovoc01.funkyfrog.core.tools.MethodAndParameters;
 import com.ovoc01.funkyfrog.core.tools.BackPack;
 
@@ -42,21 +44,16 @@ import lombok.Setter;
 @Getter
 @Setter
 class FunkyFrogDAO implements Serializable {
-
-    private transient Field primaryKey;
-    private transient Field[] fieldToInsert;
-    private transient Field[] viewAttribute;
-    private transient String table;
-    private transient String originTable;
-    private transient String database;
-    private transient String colString;
-    private transient String historyTable;
-    private transient HashMap<String, FkObject> fkHashMap;
+    @JsonIgnore
+    private transient static Map<Class<?>,FunkyFrogPersistProps> initializationMap = new HashMap<>();
+    @JsonIgnore
+    transient FunkyFrogPersistProps initializationProperty;
+    @JsonIgnore
     private transient FunkyFrogKonstruktor qBuilder = new FunkyFrogKonstruktor();
+    @JsonIgnore
     private transient String customPredicate = null;
-    private transient ProvideFkOnCreation provideFkOnCreation;
-    private transient HashMap<String, MethodAndParameters> queryMethodMap;
-    private transient String selectTable;
+    
+    
 
     /**
      * Constructs a new instance of DtbObject. It initializes various properties,
@@ -69,29 +66,50 @@ class FunkyFrogDAO implements Serializable {
      */
 
     public FunkyFrogDAO() {
-        if (getClass().getAnnotation(Mapping.class) != null)
+        if (getClass().getAnnotation(Mapping.class) != null&&shouldCallInit(getClass()))
             init();
 
     }
 
-    private void init() {
-        setTable(BackPack.getTableName(this));
-        setSelectTable(getClass().getAnnotation(Mapping.class).selectTable());
-        provideFkOnCreation = getClass().getAnnotation(ProvideFkOnCreation.class);
-        setPrimaryKey(BackPack.primaryKey(this));
-        setDatabase(BackPack.getDatabaseName(this));
+    private boolean shouldCallInit(Class<?> clazz) {
+        // Use a synchronized block to ensure thread safety
+        synchronized (initializationMap) {
+            if (initializationMap.containsKey(clazz)) {
+               initializationProperty = initializationMap.get(clazz);
+                return false;
+            } else {
+                System.out.println("Ato b");
+                FunkyFrogPersistProps init = init();
+                initializationProperty = init;
+                initializationMap.put(clazz,init );
+                return true;
+            }
+        }
+    }
+
+
+
+    private FunkyFrogPersistProps init() {
+        FunkyFrogPersistProps initializationProperty = new FunkyFrogPersistProps();
+        initializationProperty = new FunkyFrogPersistProps();
+        initializationProperty.setTable(BackPack.getTableName(this));
+        initializationProperty.setSelectTable(getClass().getAnnotation(Mapping.class).selectTable());
+        initializationProperty.setProvideFkOnCreation(getClass().getAnnotation(ProvideFkOnCreation.class));
+        initializationProperty.setPrimaryKey(BackPack.primaryKey(this));
+        initializationProperty.setDatabase(BackPack.getDatabaseName(this));
         try {
-            setColString(BackPack.columnToSelect(this));
-            setFieldToInsert(BackPack.fieldToInsert(this));
+            initializationProperty.setColString(BackPack.columnToSelect(this));
+            initializationProperty.setFieldToInsert(BackPack.fieldToInsert(this));
         } catch (IllegalArgumentException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
         Field[] vFields = BackPack.viewAttrFields(this);
         if (vFields != null) {
-            setViewAttribute(vFields);
+            initializationProperty.setViewAttribute(vFields);
         }
-        fkHashMap = new HashMap<>();
-        setQueryMethodMap(BackPack.getQueryMethods(this));
+        initializationProperty.setFkHashMap(new HashMap<>());
+        initializationProperty.setQueryMethodMap(BackPack.getQueryMethods(this));
+        return initializationProperty;
     }
 
     /**
@@ -103,7 +121,7 @@ class FunkyFrogDAO implements Serializable {
     public void setViewAttribute(Field[] fields) {
         if (fields == null)
             throw new IllegalArgumentException("Views attribute not found");
-        this.viewAttribute = fields;
+        this.getInitializationProperty().setViewAttribute(fields);
     }
 
     /**
@@ -127,7 +145,7 @@ class FunkyFrogDAO implements Serializable {
     public void setHistoryTable(String s) throws IllegalArgumentException {
         if (s == null || s.isEmpty())
             throw new IllegalArgumentException("History table is null or empty");
-        this.historyTable = s;
+        this.getInitializationProperty().setHistoryTable(s);
 
     }
 
@@ -140,7 +158,7 @@ class FunkyFrogDAO implements Serializable {
     public void setColString(String colString) throws IllegalArgumentException {
         if (colString == null || colString.isEmpty())
             throw new IllegalArgumentException("Column string cannot be null or empty");
-        this.colString = colString;
+        this.initializationProperty.setColString(colString);
     }
 
     /**
@@ -152,7 +170,7 @@ class FunkyFrogDAO implements Serializable {
     public void setTable(String table) throws IllegalArgumentException {
         if (table == null || table.isEmpty())
             throw new IllegalArgumentException("Table name cannot be null or empty");
-        this.table = table;
+        this.initializationProperty.setTable(table);
     }
 
     /**
@@ -164,7 +182,7 @@ class FunkyFrogDAO implements Serializable {
     public void setDatabase(String database) throws IllegalArgumentException {
         if (database == null || database.isEmpty())
             throw new IllegalArgumentException("Database name cannot be null or empty");
-        this.database = database;
+        this.initializationProperty.setDatabase(database);
     }
 
     /**
@@ -179,7 +197,7 @@ class FunkyFrogDAO implements Serializable {
         T[] results = null;
         if (c == null) {
             try {
-                c = FunkyFrogConnexion.sessionConnection(getDatabase());
+                c = FunkyFrogConnexion.sessionConnection(initializationProperty.getDatabase());
                 results = (T[]) getAll(c, this.getClass());
                 return results;
             } catch (Exception e) {
@@ -198,7 +216,7 @@ class FunkyFrogDAO implements Serializable {
         T[] result = null;
         if (c == null) {
             try {
-                c = FunkyFrogConnexion.sessionConnection(getDatabase());
+                c = FunkyFrogConnexion.sessionConnection(initializationProperty.getDatabase());
                 result = (T[]) getAll(c, this.getClass());
                 return (result.length > 0) ? result[0] : null;
             } catch (Exception e) {
@@ -247,7 +265,7 @@ class FunkyFrogDAO implements Serializable {
     public void croak(Connection c) throws Exception {
         if (c == null) {
             try {
-                c = FunkyFrogConnexion.sessionConnection(getDatabase());
+                c = FunkyFrogConnexion.sessionConnection(initializationProperty.getDatabase());
                 save(c);
                 c.commit();
                 return;
@@ -317,7 +335,7 @@ class FunkyFrogDAO implements Serializable {
     public void leap(Connection c) throws Exception {
         if (c == null) {
             try {
-                c = FunkyFrogConnexion.sessionConnection(getDatabase());
+                c = FunkyFrogConnexion.sessionConnection(initializationProperty.getDatabase());
                 modify(c);
                 c.commit();
                 return;
@@ -357,7 +375,7 @@ class FunkyFrogDAO implements Serializable {
      * @throws Exception If a database error occurs during the operation.
      */
     public void safeUpdate(Connection c) throws Exception {
-        safeUpdate(c, getHistoryTable());
+        safeUpdate(c,initializationProperty.getHistoryTable());
     }
 
     /**
@@ -395,7 +413,7 @@ class FunkyFrogDAO implements Serializable {
     public void jump(Connection c) throws Exception {
         if (c == null) {
             try {
-                c = FunkyFrogConnexion.sessionConnection(getDatabase());
+                c = FunkyFrogConnexion.sessionConnection(initializationProperty.getDatabase());
                 eraseObject(c);
                 c.commit();
                 return;
@@ -436,10 +454,10 @@ class FunkyFrogDAO implements Serializable {
      * @throws SQLException     If a SQL error occurs.
      */
     public Integer currentSequenceValue(Connection c) throws RuntimeException, SQLException {
-        if (getPrimaryKey() == null)
+        if (initializationProperty.getPrimaryKey() == null)
             throw new RuntimeException("Primary key is null");
-        String sequence = getPrimaryKey().getAnnotation(PrimaryKey.class).sequence();
-        return BackPack.currentSeqVal(sequence, getPrimaryKey(), c);
+        String sequence = initializationProperty.getPrimaryKey().getAnnotation(PrimaryKey.class).sequence();
+        return BackPack.currentSeqVal(sequence, initializationProperty.getPrimaryKey(), c);
     }
 
     /**
@@ -487,8 +505,8 @@ class FunkyFrogDAO implements Serializable {
     }
 
     void initNecessaryForeignKey(Connection c) throws Exception {
-        if (provideFkOnCreation != null) {
-            if (provideFkOnCreation.type() == InitializationType.ALL)
+        if (initializationProperty.getProvideFkOnCreation() != null) {
+            if (initializationProperty.getProvideFkOnCreation().type() == InitializationType.ALL)
                 initAllForeignKey(c);
             else
                 initAnnotedForeignKeyOnly(c);
@@ -497,7 +515,7 @@ class FunkyFrogDAO implements Serializable {
     }
 
     void initAnnotedForeignKeyOnly(Connection c) throws Exception {
-        for (Map.Entry<String, FkObject> mapEntry : getFkHashMap().entrySet()) {
+        for (Map.Entry<String, FkObject> mapEntry :initializationProperty.getFkHashMap().entrySet()) {
             FkObject fkObject = mapEntry.getValue();
             if (fkObject.isInit()) {
                 Object object = fkObject.init(c);
@@ -509,7 +527,7 @@ class FunkyFrogDAO implements Serializable {
     }
 
     public void initForeignKeyByIdentity(String identity, Connection c) throws Exception {
-        FkObject fObject = getFkHashMap().get(identity);
+        FkObject fObject =initializationProperty.getFkHashMap().get(identity);
         if (fObject == null)
             throw new Exception("the identity of your foreign key does not exist");
         Object object = fObject.init(c);
@@ -524,7 +542,7 @@ class FunkyFrogDAO implements Serializable {
      * @throws Exception If an error occurs during foreign key initialization.
      */
     void initAllForeignKey(Connection c) throws Exception {
-        for (Map.Entry<String, FkObject> mapEntry : getFkHashMap().entrySet()) {
+        for (Map.Entry<String, FkObject> mapEntry :initializationProperty.getFkHashMap().entrySet()) {
             FkObject fkObject = mapEntry.getValue();
             Object object = fkObject.init(c);
             getClass().getDeclaredMethod(BackPack.createSetter(fkObject.getFkName()), object.getClass()).invoke(this,
@@ -546,12 +564,12 @@ class FunkyFrogDAO implements Serializable {
      * Resets the table name to the original table name.
      */
     private void resetTable() {
-        setTable(originTable);
+        setTable(initializationProperty.getOriginTable());
     }
 
     public Object executeDtbQuery(Class<?> clzz, Connection c, String method_identity, Object... args)
             throws Exception {
-        MethodAndParameters methodAndParameters = getQueryMethodMap().get(method_identity);
+        MethodAndParameters methodAndParameters = initializationProperty.getQueryMethodMap().get(method_identity);
         CustomQuery dtbQuery = methodAndParameters.getMethod().getAnnotation(CustomQuery.class);
         // FunkyFrogPersist obj = (FunkyFrogPersist) clzz.newInstance();
         String query = dtbQuery.value();
